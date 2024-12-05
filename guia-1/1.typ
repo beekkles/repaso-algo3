@@ -152,3 +152,42 @@ def atbt(p):
     return memo[n][0]
 
 ```
+
+= CortesEconómicos
+
+== 
+convencido(?)
+
+== $ "CE"(i,j,C) = cases(
+  0 &"if" C = {},
+  min("CE"(i,c,C-{c}),"CE"(c,j,C-{c}) | forall c in C, i <= c < j) + (j-i) & "c.c"
+  )
+$
+
+Se explica por si misma, se resuelve con $"CE"(0,ell)$ donde $C$ son los cortes posibles
+
+== 
+```python
+memo = {}
+
+def ce(i, j, C):
+    if (i, j) in memo:
+        return memo[(i,j)]
+    
+    res = []
+    if not C:
+        return 0
+    
+    for c in C:
+        s1= ce(i, c, [k for k in C if i <= k < c])
+        s2 = ce(c, j, [k for k in C if c < k < j])
+        res.append(s1+s2+(j-i))
+
+    memo[(i,j)] = min(res)
+    return memo[(i,j)]
+```
+
+Será $O(n^3)$ temporal y $O(n^2)$ espacial. Un bottom-up costaría exactamente lo mismo.
+
+== 
+
