@@ -1,3 +1,5 @@
+#import "@preview/pyrunner:0.1.0" as py
+
 #set heading(numbering: "1.a.")
 #set text(
   font: "New Computer Modern"
@@ -89,4 +91,64 @@ Para $B, c$ y $n = |B|$:
 
 = AstroTrade
 
+==
+hecho xd
 
+== $
+"AT"_p (j,c) cases(
+  -infinity &"if" c<0 or c>j,
+  0 &"if" j=0 and c=0,
+  max("AT"_p (j-1,c-1)-p_j,"AT"_p (j-1,c+1)+p_j,"AT"_p (j-1,c)) &"c.c.")
+$
+
+== $"AT"_p (n,0)$
+
+==
+
+```python
+memo = [[None for _ in range(n+1)] for _ in range(n+1)]
+
+def at(j, c):
+    if memo[j][c] != None:
+        return memo[j][c]
+    
+    if c < 0 or c > j:
+        return float('-inf')
+
+    if j == 0 and c == 0:
+        return 0
+    
+    memo[j][c] = max(
+                at(j-1, c-1) - p[j],
+                at(j-1, c+1) + p[j],
+                at(j-1, c)
+            )
+    
+    return memo[j][c]
+
+```
+
+La complejidad espacial es $Theta(n^2)$ ya que en el peor caso, $c = n$ y debo memoizar para cada $i<=n$, la complejidad temporal será la misma que la espacial, lo que es una mejora a comparación de $O(3^n)$ en el caso sin memoizar.
+
+== 
+
+```python
+memo = [[None for _ in range(n+1)] for _ in range(n+1)]
+
+def atbt(p):
+    memo[0][0] = 0
+
+    for j in range(1, n+1):
+        for c in range(0, j+1):
+            if c < 0 or c > j:
+                memo[j][c] = float('-inf')
+            else:
+                v1 = memo[j-1][c-1] if c-1 >= 0 else float('-inf')
+                v2 = memo[j-1][c+1] if c+1 <= j-1 else float('-inf')
+                v3 = memo[j-1][c]   if memo[j-1][c] else float('-inf')
+
+                memo[j][c] = max(v1-p[j], v2+p[j], v3)
+
+    return memo[n][0]
+
+```
