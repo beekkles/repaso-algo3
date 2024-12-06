@@ -1,6 +1,6 @@
 #import "@preview/pyrunner:0.1.0" as py
 
-#set heading(numbering: "1.a.")
+#set heading(numbering: "1.a.I.")
 #set text(
   font: "New Computer Modern"
 )
@@ -187,7 +187,206 @@ def ce(i, j, C):
     return memo[(i,j)]
 ```
 
-Será $O(n^3)$ temporal y $O(n^2)$ espacial. Un bottom-up costaría exactamente lo mismo.
+Será $O(n^3)$ temporal y $O(n^3)$ espacial. Un bottom-up costaría lo mismo temporal y $(n^2)$ espacial ya que no memoizamos cada k
+
+= Travesía Vital
+
+== $ "TV"_A (i,j) cases(
+  1 &"if" "TV"'_A (i,j) < 1,
+  "TV"'_A (i,j) &"c.c."
+  ) $
+
+$ "TV"'_A (i,j) cases(
+  A_(i,j) &"if" i=n and j=m,
+  A_(i+1,j)+"TV"'_A (i+1,j) &"if" (A_(i+1,j) < A_(i,j+1) and i < n) or j=m,
+  A_(j,i+1)+"TV"'_A (i,j+1) &"if" (A_(i+1,j) >= A_(i,j+1) and j < m) or i=n
+) $
+
+está mal pero bueno, a corregir por el lector!
+
+==
+si
+
+== $ "TV"_A (i,j) cases(
+  "TVmax"_A (1-A_(i,j)) &"if" i = n and j=m,
+  "TVmax"_A ("TV"_A (i,j+1) - A_(i,j)) &"if" i = n,
+  "TVmax"_A ("TV"_A (i+1,j) - A_(i,j)) &"if" j = m,
+  "TVmax"_A (min("TV"_A (i+1,j),"TV"_A (i,j+1)) - A_(i,j))&"c.c." 
+) $
+
+$ "TVmax"_A (f) = max(1,f)$
+
+Se resuelve con $"TV"_A (1,1)$
 
 == 
+```python
+A=[
+    [0,0,0,0],
+    [0,-2,-3,3],
+    [0,-5,-10,1],
+    [0,10,30,-5]]
 
+n = len(A[0])-1
+m = len(A)-1
+
+memo = {}
+
+def TV(i, j):
+    if (i,j) in memo:
+        return memo[(i,j)]
+    
+    if i == n and j == m:
+        memo[(i,j)] = TVmax(1-A[i][j])
+        return memo[(i,j)]
+
+    if i == n:
+        memo[(i,j)] = TVmax(TV(i,j+1) - A[i][j])
+        return memo[(i,j)]
+    
+    if j == m:
+        memo[(i,j)] = TVmax(TV(i+1,j) - A[i][j])
+        return memo[(i,j)]
+    
+    memo[(i,j)] = TVmax(min(TV(i+1,j), TV(i,j+1)) - A[i][j])
+    return memo[(i,j)]
+
+def TVmax(f):
+    return max(1,f)
+    
+print(TV(1,1))
+```
+
+La complejidad temporal será $O(n m)$ y la espacial $O(n m)$, frente a un bottom-up que probablemente lo unico que cambiaría sería la recursión por dos bucles anidados hasta n y m respectivamente.
+
+== 
+No cumple con la complejidad pero una solución B-U. Una posible solución es usar un while hasta n,m e ir incrementando i o j en base a la desición
+```python
+A = [
+    [0, 0, 0, 0],
+    [0, -2, -3, 3],
+    [0, -5, -10, 1],
+    [0, 10, 30, -5]
+]
+
+n = len(A)-1
+m = len(A[0])-1
+
+memo = [[float('inf')] * (m+1) for _ in range(n+1)]
+
+def TV(i, j):
+    memo[n][m] = TVmax(1-A[n][m])
+
+    for i in range(n-1, -1, -1):
+        memo[i][m] = TVmax(memo[i+1][m] - A[i][m])
+
+    for j in range(m-1, -1, -1):
+        memo[n][j] = TVmax(memo[n][j+1] - A[n][j])
+
+    for i in range(n-1, -1, -1):
+        for j in range(m-1, -1, -1):
+            memo[i][j] = TVmax(min(memo[i+1][j], memo[i][j+1]) - A[i][j])
+
+    return memo[1][1]
+
+def TVmax(f):
+    return max(1,f)
+
+print(TV(1, 1))
+
+```
+
+= PilaCauta
+
+
+qvq $s_k-s_i >= 0 and s_k-s_i>=w_i$ cada paso, partiendo de $i=n and C={}$ para cada $k != i$ y en cada paso hacer $C=C union {i}$
+
+
+Primero defino $n = |S|$
+- Parto de $i=n and C={}$
+- Devolver 1 si $|C| = n$
+- $forall c not in C | 1<=c<=n :: 1 + max(C-{c}) $ tal que valga $s_c-s_i >=0 and s_c-s_i>=w_i$
+
+$ "pc"(i,C) = cases(
+  0 &"if" |C|=n,
+  max(1+"pc"(c,C union {c}) | c not in C and S_c-S_i >= 0 and S_k-S_i>=w_i) &"if" |C|<n
+  )
+
+ $
+
+== LA POSTA! (al final fracasé en el intento)
+
+== 
+$ "pc"_(W,S) (i,p) = cases(
+  0 &"if" i < n,
+  max("pc"(i+1,p)) &"if" s_i>=p and s_i-p>=w_i,
+  "pc"(i+1,p) &"if" p > s_i
+
+  ) $
+
+Para $i=1, p=0$
+
+La posta nada..
+
+= OperacionesSeq
+
+== 
+$ "os"_("res") (i,w,C) = "reverse"("os"_v (i,w,C))$
+
+$ "os"_v (i,w,C) = cases(
+  emptyset &"if" |C| = n and v_i != w,
+  C &"if" |C| = n and v_i = w,
+  "any"(alpha,beta,gamma | "if" C != emptyset "else" emptyset) &"if" |C| != n
+  ) $
+
+$alpha = "os"(i-1,w-v_i,C xor [+])$
+
+$beta = "os"(i-1,w/v_i,C xor [x])$
+
+$gamma = "os"(i-1,root(v_i,w),C xor [↑])$
+
+Esto se resuelve para $"os"_("res") (n,w,emptyset)$
+
+== 
+```python
+v = [0,3,1,5,2,1]
+n = len(v)-1
+C = ""
+memo = {}
+def os(i,w,C):
+    if (i,w) in memo:
+        return memo[(i,w)]
+    
+    if len(C) == n-1 and w != v[i]:
+        return ""
+    
+    if len(C) == n-1 and w == v[i]:
+        return C
+    
+    res1 = os(i-1,w-v[i],C + "+")
+    res2 = os(i-1,w/v[i],C + "x")
+    res3 = os(i-1,w**(1/v[i]),C + "↑")
+
+    if res1:
+        memo[(i,w)] = res1
+    elif res2:
+        memo[(i,w)] = res2
+    elif res3:
+        memo[(i,w)] = res3
+    else:
+        memo[(i,w)] = ""
+
+    return memo[(i,w)]
+    
+def os_res(i,w,C):
+    return os(i,w,C)[::-1] #sale al revés porque obviamente es recursivo
+
+print(os_res(n,400,C))
+```
+
+Tenemos 3 recursiones, es claramente $O(3^n)$ tanto temporal como espacial sin memo, $O(n w))$ tanto espacial como temporal con memo, esto es porque hacemos $O(n w)$ llamadas recursivas
+
+Si fuese bottom-up sería iterando de 1 a n y para cada uno, de 1 a w, con complejidad tanto espacial como temporal idéntica a la top-down
+
+= DadosSuma
+
+== 
