@@ -1,15 +1,11 @@
 #import "@preview/pyrunner:0.1.0" as py
 
-#set heading(numbering: "1.a.I.")
+#set heading()
 #set text(
   font: "New Computer Modern"
 )
 #import "@preview/algo:0.3.4": algo, i, d, comment, code
 
-=
-=
-=
-=
 = _SumaDinámica_
 
 == $ "ss"'_C s(i,j) = cases(
