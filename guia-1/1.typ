@@ -387,6 +387,4 @@ Tenemos 3 recursiones, es claramente $O(3^n)$ tanto temporal como espacial sin m
 
 Si fuese bottom-up sería iterando de 1 a n y para cada uno, de 1 a w, con complejidad tanto espacial como temporal idéntica a la top-down
 
-= DadosSuma
-
 == 
